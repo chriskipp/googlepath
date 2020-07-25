@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html>
+  <!-- head -->
+  <head>
+    <meta charset='utf-8'></meta>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Googlepath</title>
+
+    <!-- SlickGrid -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.6.0/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/6pac-slickgrid/2.4.25/slick.grid.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/6pac-slickgrid/2.4.25/slick-default-theme.min.css"/>
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.Default.css" />
+
+    <style>
+      html, body, .tabdiv {
+        height:100%;
+        margin:0;
+        padding:0;
+	font-family: arial;
+      }
+    
+      .tabdiv {
+        display: flex;
+        flex-flow: column;
+        height: 100%;
+        color: white;
+        background-color: black;
+      }
+      
+      .tab {
+        height: 50px;
+        overflow: visible;
+        border: 0;
+        color: white;
+        background-color: black;
+        font-weight: bold;
+      }
+      
+      .tab button {
+        color: inherit;
+        background-color: inherit;
+        float: left;
+        border: 1px solid;
+        border-bottom: 0;
+        outline: none;
+        cursor: pointer;
+        padding: 14px 16px;
+        margin: 3px;
+        margin-bottom: 0;
+        align: bottom;
+        transition: 0.3s;
+        font-size: 17px;
+      }
+      
+      .tab button:hover {
+        border: 2px solid;
+        padding: 13px 15px;
+        margin-top: 2px;
+      }
+      
+      .tab button.active {
+        background-color: white;
+        color: black;
+        border-color: inherit;
+        font-weight: bold;
+        border-bottom: 0;
+        margin-bottom: 0;
+        margin-top: 3px;
+        margin-left: 2px;
+      }
+      
+      .tabcontent {
+        display: flex;
+        flex-flow: column;
+        flex-grow: 1;
+        padding: 6px 12px;
+        margin-left: 3px;
+        border: 3px solid;
+        background-color: inherit;
+        margin-top: 0;
+        border-color: inherit;
+      }
+      
+      #container {
+        height: 90%;
+        width: auto;
+      }
+      
+      .topright {
+        float: right;
+        cursor: pointer;
+        font-size: 28px;
+      }
+      
+      .topright:hover {
+        font-weight: bold;
+      }
+      
+      .slick-header-column.ui-state-default {
+        background: linear-gradient(to bottom, #002400 0%,#83c783 0%,#52b152 33%,#008a00 67%,#005700 99%,#002400 100%);
+        color: white;
+        text-shadow: none;
+        font-family: Arial, Verdana, Helvetica, sans-serif;
+        font-weight: bold;
+        font-size: 20px;
+        height: 20px;
+        line-height: 20px;
+      }
+    
+      .slick-row.ui-widget-content {
+        background: none;
+        background-color: #111111;
+        color: #cccccc;
+        border-bottom: none;
+        border-right: solid 1px green;
+        font-size: 14px;
+      }
+    
+      .slick-cell {
+        border-color: green;
+        border-left: 1px solid transparent;
+        border-top: 1px solid transparent;
+      }
+  
+      .slick-row.odd {
+        background-color: #111111;
+      }
+  
+      .slick-row.even {
+        background-color: #222222;
+      }
+    
+      .slick-cell.selected {
+         background-color: seagreen;
+         border-right: 1px dotted white;
+         border-bottom: 1px dotted white;
+      }
+    
+      .slick-cell.active {
+         background-color: seagreen;
+         border: 1px solid white;
+      }
+    </style>
+
+    <!-- moment.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+
+    <!-- jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.threedubmedia/2.2/event.drag/jquery.event.drag.min.js"></script>
+
+    <!-- SlickGrid -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/6pac-slickgrid/2.4.25/slick.core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/6pac-slickgrid/2.4.25/plugins/slick.rowselectionmodel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/6pac-slickgrid/2.4.25/slick.formatters.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/6pac-slickgrid/2.4.25/slick.grid.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/6pac-slickgrid/2.4.25/slick.dataview.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/6pac-slickgrid/2.4.25/plugins/slick.resizer.js"></script>
+
+    <!-- Leaflet -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.6.0/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/leaflet.markercluster.js"></script>
+
+    <script>
+      // Script for generating the map
+      maps = [
+        { name: "OSM standard",
+          url:"https://tiles.wmflabs.org/osm/{z}/{x}/{y}.png",
+          maxZoom: 19,
+        },
+        { name: "OSM no labels",
+          url:"https://tiles.wmflabs.org/osm-no-labels/{z}/{x}/{y}.png",
+          maxZoom: 15,
+        },
+        { name: "Hikebike",
+          url:"https://tiles.wmflabs.org/hikebike/{z}/{x}/{y}.png",
+          maxZoom: 20,
+        },
+        { name: "Sattelite",
+          url:"http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+          maxZoom: 18,
+          attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        },
+        { name: "Relief",
+          url:"http://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}",
+          maxZoom: 14,
+        },
+        { name: "Physical",
+          url:"http://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}",
+          maxZoom: 9,
+        },
+        { name: "OpenTopoMap",
+          url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+          maxZoom: 17,
+          attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+        },
+        { name: "Esri.WorldStreetMap",
+          url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+          maxZoom: 18,
+          attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012'
+        },
+        { name: "Esri.DelLorme",
+          url: "https://server.arcgisonline.com/ArcGIS/rest/services/Specialty/DeLorme_World_Base_Map/MapServer/tile/{z}/{y}/{x}",
+          attribution: 'Tiles &copy; Esri &mdash; Copyright: &copy;2012 DeLorme',
+          minZoom: 1,
+          maxZoom: 11 
+        },
+        { name: "Esri.WorldTopoMap",
+          url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+          attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community'
+        },
+        { name: "Esri.WorldTerrain",
+          url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}",
+          maxZoom: 13,
+          attribution: 'Tiles &copy; Esri &mdash; Source: USGS, Esri, TANA, DeLorme, and NPS'
+        },
+        { name: "ViirsEarthAtNight2012",
+      	  url: "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/VIIRS_CityLights_2012/default/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpeg",
+          attribution: 'Imagery provided by services from the Global Imagery Browse Services (GIBS), operated by the NASA/GSFC/Earth Science Data and Information System (<a href="https://earthdata.nasa.gov">ESDIS</a>) with funding provided by NASA/HQ.',
+          bounds: [[-85.0511287776, -179.999999975], [85.0511287776, 179.999999975]],
+          minZoom: 1,
+          maxZoom: 8,
+          format: 'jpg',
+          time: '',
+          tilematrixset: 'GoogleMapsCompatible_Level' 
+        },
+        { name: "Esri.WorldShadeRelief",
+          url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}",
+          maxZoom: 13,
+          attribution: 'Tiles &copy; Esri &mdash; Source: Esri'
+        }
+      ];
+      
+      // Variables
+      var map;
+      var baseMaps = {};
+      
+      // Create TileLayers from maps
+      for (i = 0; i < maps.length; i++) {
+        maps[i].layer = function() {
+	  l = new L.TileLayer(this.url, { maxZoom: this.maxZoom
+	});
+        return l;
+        }
+      };
+      
+      // Populate BaseMap object with layers
+      for (i = 0; i < maps.length; i++) {
+        baseMaps[maps[i].name] = maps[i].layer();
+      };
+      
+      function addBaseMap() {
+        map = new L.Map('map', {
+          center: [50, 10],
+          zoom: 5,
+          minZoom: 1,
+          zoomSnap: 0,
+          boxZoom: true,
+          keyboard: true,
+          keyboardPanDelta: 80,
+          maxBounds: [[-90, -180], [90, 180]]
+        });
+        
+        map.addLayer(baseMaps["Sattelite"]);
+        
+        L.control.layers(baseMaps).addTo(map);
+      }
+    </script>
+
+    <script>
+      // Script to prepare data
+      var json,
+           grid,
+           data = [],
+           columns = [],
+           options = {
+             enableCellNavigation: true,
+             enableColumnReorder: false,
+     	     fullWidthRows: true,
+    	     forceFitColumns: true,
+     	     multiSelect: false,
+     	     syncColumnCellResize: true,
+	     enableAutoSizeColumns: true
+           },
+           locations = [], 
+           polyline = [],
+           markers = []; 
+    
+      function readJSONFromFile(event) {
+        var input = event.target;
+        var reader = new FileReader();
+        document.getElementById('output').innerText = 'Reading File...';
+        reader.onload = function(){
+          json = JSON.parse(reader.result);
+          prepareData(json);
+          document.getElementById('output').innerText = '';
+        };
+          reader.readAsText(input.files[0]);
+      };
+    
+      function toTitleCase(x) {
+        return x[0].toUpperCase() + x.substr(1);
+      }
+    
+      function newColumn(x) {
+        return {id:x,
+    	    name:toTitleCase(x),
+    	    field:x,
+    	    sortable:true,
+    	    selectable:true,
+    	    resizable:true
+               };
+      }
+      
+      function prepareData(json) {
+        // Get Array from JSON
+        data = json.locations;
+    
+        for (i = 0; i < data.length; i++) {
+          // Add id column
+          data[i]['id'] = i;
+    
+          // Transforming Values
+          data[i]['timestamp'] = moment(Number(data[i]['timestampMs']));
+          data[i]['longitude'] = data[i]['longitudeE7'] * 10**-7;
+          data[i]['latitude'] = data[i]['latitudeE7'] * 10**-7;
+          data[i]['date'] = data[i]['timestamp'].format("YYYY-MM-DD");
+          data[i]['time'] = data[i]['timestamp'].format("HH:MM:SS");
+        }
+    
+        // Extracting Columns
+        var cols = Array.from(new Set(data.map(x => Object.keys(x)).flat())); 
+        columns = cols.map(x => newColumn(x));
+    
+        // Preparing Objects for Grid
+        grid.setColumns(columns);
+        dataView.setItems(data);
+    
+        locations = data.map(i => [i['latitude'], i['longitude']])
+        polyline = L.polyline(locations);
+        
+        markers = L.markerClusterGroup();
+        for (i = 0; i < locations.length; i++) {
+           m = L.marker(locations[i]);
+           markers.addLayer(m);
+        }
+      }
+    </script>
+
+    <script> // Functions for the Map
+      function showMap(){
+        addBaseMap();
+      }
+    
+      function togglePolyline() {
+	if (document.getElementById('polyline').checked) {
+	  polyline.addTo(map);
+	} else {
+	  polyline.removeFrom(map);
+	}
+      }
+
+      function toggleMarkers() {
+	if (document.getElementById('markers').checked) {
+	  markers.addTo(map);
+	} else {
+	  markers.removeFrom(map);
+	}
+      }
+    </script>
+  </head>
+  <body>
+    <div class="tabdiv">
+
+      <div class="tab">
+        <button class="tablinks" onclick="openTab(event, 'Open File')" id="defaultOpen">Open File</button>
+        <button class="tablinks" onclick="openTab(event, 'Map')">Map</button>
+      </div>
+      
+      <div id="Open File" class="tabcontent">
+        <input type='file'
+               id='readjson'
+      	 accept='application/json'
+      	 onchange='readJSONFromFile(event)'>
+        <p id='output'></p>
+	<div id="gridContainer">
+          <div id='container' style="overflow:hidden">
+          </div>
+        </div>
+        </input>
+      </div>
+      
+      <div id="Map" class="tabcontent">
+	<div style="height:50px;width:100%;padding:0;margin:0">
+          <button id="showmapbtn" onclick='showMap();'>Show Map</button>
+	  <input type="checkbox" id="polyline" name="polyline" onclick="togglePolyline();"/>
+	  <label for="polyline">Toggle Polyline</label>
+	  <input type="checkbox" id="markers" name="markers" onclick="toggleMarkers();"/>
+	  <label for="markers">Toggle Markers</label>
+	</div>
+        <div id="map" style="background-color:black;position:absolute;top:90px;bottom:10px;left:10px;right:10px;z-index:1;">
+        </div>
+      </div>
+
+    </div>
+
+    <script> // Script to open a Tab
+      function openTab(evt, tabName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+          tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+          tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+      }
+      
+      // Get the element with id="defaultOpen" and click on it
+      document.getElementById("defaultOpen").click();
+    </script>
+   
+    <script> // Script to init Grid
+      var dataView = new Slick.Data.DataView({});
+
+      // Initiating Grid
+      var grid = new Slick.Grid("#container", dataView, columns, options);
+      grid.setSelectionModel(new Slick.RowSelectionModel());
+
+      var resizer = new Slick.Plugins.Resizer({
+        container: '#gridContainer',
+        minHeight: 150,
+        minWidth: 250
+      });
+
+      grid.registerPlugin(resizer);
+
+      grid.init();
+    
+      // Make the grid respond to DataView change events.
+      dataView.onRowCountChanged.subscribe(function (e, args) {
+        grid.updateRowCount();
+        grid.render();
+      });
+      
+      dataView.onRowsChanged.subscribe(function (e, args) {
+        grid.invalidateRows(args.rows);
+        grid.render();
+      });
+    
+      function syncGridSelection(grid, preserveHidden) {
+        var self = this;
+        var selectedRowIds = self.mapRowsToIds(grid.getSelectedRows());;
+        var inHandler;
+      
+        function update() {
+          if (selectedRowIds.length > 0) {
+            inHandler = true;
+            var selectedRows = self.mapIdsToRows(selectedRowIds);
+            if (!preserveHidden) {
+              selectedRowIds = self.mapRowsToIds(selectedRows);
+            }
+            grid.setSelectedRows(selectedRows);
+            inHandler = false;
+          }
+        }
+      
+        grid.onSelectedRowsChanged.subscribe(function(e, args) {
+          if (inHandler) { return; }
+          selectedRowIds = self.mapRowsToIds(grid.getSelectedRows());
+        });
+        this.onRowsChanged.subscribe(update);
+        this.onRowCountChanged.subscribe(update);
+      }
+    
+      grid.onSort.subscribe(function(e, args) {
+        var comparer = function(a, b) {
+          return (a[args.sortCol.field] > b[args.sortCol.field]) ? 1 : -1;
+        }
+        dataView.sort(comparer, args.sortAsc);
+      });
+    </script>
+  </body>
+</html>
