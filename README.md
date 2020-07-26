@@ -11,7 +11,7 @@ GooglePath is a completly client sided single file webpage/program to view the l
 
 No installation is needed. The file googlepath.html can be viewed in every standart browser.
 
-To retrive your own personal location data from google you might want to do a [Google Takeout](https://takeout.google.com/https://takeout.google.com). For testing purposes I provided a example file that you might use instead but for privacy reasons it is not that large and won't show you the ability of this repository to easily display even millions of data points.
+To retrive your own personal location data from google you might want to do a [Google Takeout](https://takeout.google.com/https://takeout.google.com). For testing purposes I provided a example file that you might use instead but for privacy reasons it is not that large and won't show you the ability of this repository to  display even hundreds of thousends data points.
 
 ## Usage
 
