@@ -16,11 +16,11 @@ To retrive your own personal location data from google you might want to do a [G
 ## Usage
 
 1. Just open the file googlepath.html in a browser of your choice (text based browser not supported ;-) )
-2. Click on "Browse" button to open the JSON file google send you (or the example file in the example directory
-3. Wait a short moment until your data is parsed (depending on how muc hdata google collected about your location (tested up to a few hundred MB)
+2. Click on the "Browse" button to open the JSON file google send you (or the example file in the data directory)
+3. Wait a short moment until your data is parsed (depending on how much data google collected about your location (tested up to a few hundred MB)
 4. Once the data is loaded a grid with a tabular form of the data should appear
 5. Change the tab to "Map" and click on the "Show Map" button to initialise the map (leaflet actually doasn't like it to be initiated in hidden tabs)
-6. Toggle the polyline and marker Checkboxes to show your location data as a polyline or as marker clusters on the map
+6. Toggle the polyline and marker Checkboxes to show your location data as a polyline or as marker clusters on the map (if you are using the example data you might want to move the map to iceland because all of the example data is located there)
 7. Enjoy,  and take your time browse your own data (and remember places you once have benn and just forgot about them ;-) )
 
 ## About this software
