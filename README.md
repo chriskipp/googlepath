@@ -1,12 +1,17 @@
 # GooglePath
 
-GooglePath is a completly client side single file webpage/program to view all the location data google has collected about you. You only need a standart browser to view this data in a grid as well as on a map as a polyline or as marker clusters.
+GooglePath is a completly client sided single file webpage/program to view the location data google collects. You only need a standart browser to view this data as a grid of waypoints as well as on a map as a polyline or as marker clusters.
+
+## Impressions/Screenshots
+
+![grid_example](img/grid_example.png)
+![map_example](img/map_example.png)
 
 ## Installation and retriving your data
 
 No installation is needed. The file googlepath.html can be viewed in every standart browser.
 
-To retrive your own personal location data from google you might want to do a [Google Takeout(](https://takeout.google.com/https://takeout.google.com). For testing purposes I provided a example file that you might use instead but for privacy reasons it is not that large and won't show you the ability of this repository to easily display even millions of data points.
+To retrive your own personal location data from google you might want to do a [Google Takeout](https://takeout.google.com/https://takeout.google.com). For testing purposes I provided a example file that you might use instead but for privacy reasons it is not that large and won't show you the ability of this repository to easily display even millions of data points.
 
 ## Usage
 
